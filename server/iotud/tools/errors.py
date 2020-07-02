@@ -10,4 +10,6 @@ def get_error_msg(code: str):
         return 'La contraseña es incorrecta.'
     elif code == 'UD005':
         return 'Error interno de base de datos.'
+    elif code == 'UD006':
+        return 'Permiso denegado.'
     return 'Codigo de error no definido'

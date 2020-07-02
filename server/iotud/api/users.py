@@ -1,6 +1,6 @@
 import functools
 from flask import Blueprint, jsonify,  request
-from iotud.tools import fecth_one, update, insert, get_error_msg
+from iotud.tools import fetch_one, update, insert, get_props, either_response
 from string import ascii_lowercase
 import random
 from oslash import Right, Left
@@ -24,21 +24,6 @@ def login():
     return either_response(token_generated, 'Login exitoso')
 
 
-def get_props(props: list, data: dict):
-    if not data:
-        return Left('UD001')
-    keys_exist = all(map(lambda x: x in data, props))
-    if keys_exist:
-        return Right(reduce(lambda x, y: assoc(x, y, data[y]), props, {}))
-    return Left('UD001')
-
-
-def either_response(data, msg=''):
-    if isinstance(data, Right):
-        return jsonify({'res': 200, 'msg': msg, "data": data.value})
-    return jsonify({"res": data.value, "msg": get_error_msg(data.value)})
-
-
 def add_user_db(user: dict):
     query = "INSERT INTO users(name, email, password, id_rol) \
             VALUES (%s, %s, %s, %s)"
@@ -52,14 +37,14 @@ def add_user_db(user: dict):
 def check_if_user_exists(data: dict):
     query = "SELECT * FROM users WHERE email = %s"
     vals = (data['email'],)
-    return fecth_one(query, vals).bind(
+    return fetch_one(query, vals).bind(
         lambda user: Right(data) if user is None else Left('UD002'))
 
 
 def append_user(data: dict):
     query = "SELECT * FROM users WHERE email = %s"
     vals = (data['email'],)
-    return fecth_one(query, vals).bind(
+    return fetch_one(query, vals).bind(
         lambda user: Left('UD003') if user is None else Right({"user": user, "body": data}))
 
 
