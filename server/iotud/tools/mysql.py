@@ -18,7 +18,8 @@ def query_wrapper(query: str, vals: tuple, f):
         result = f(cnx, cursor)
         cnx.close()
         return Right(result)
-    except:
+    except Exception as e:
+        print(str(e))
         return Left('UD005')
 
 
@@ -29,10 +30,16 @@ def insert(query: str, vals: tuple):
     return query_wrapper(query, vals, insert_function)
 
 
-def fecth_one(query: str, vals: tuple):
+def fetch_one(query: str, vals: tuple):
     def fetch_one_function(cnx, cursor):
         return cursor.fetchone()
     return query_wrapper(query, vals, fetch_one_function)
+
+
+def fetch_all(query: str, vals: tuple):
+    def fetch_all_function(cnx, cursor):
+        return cursor.fetchall()
+    return query_wrapper(query, vals, fetch_all_function)
 
 
 def update(query: str, vals: tuple):
@@ -40,3 +47,10 @@ def update(query: str, vals: tuple):
         cnx.commit()
         return cursor.lastrowid
     return query_wrapper(query, vals, update_function)
+
+
+def delete(query: str, vals: tuple):
+    def delete_function(cnx, cursor):
+        cnx.commit()
+        return cursor.lastrowid
+    return query_wrapper(query, vals, delete_function)
