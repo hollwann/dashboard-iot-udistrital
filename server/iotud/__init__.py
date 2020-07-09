@@ -15,10 +15,12 @@ def create_app():
     from iotud.api import users
     from iotud.api import devices
     from iotud.api import variables
+    from iotud.api import variable_data
 
     app.register_blueprint(users.bp)
     app.register_blueprint(devices.bp)
     app.register_blueprint(variables.bp)
+    app.register_blueprint(variable_data.bp)
 
     CORS(app, resources={r"/*": {"origins": "*"}})
     return app
