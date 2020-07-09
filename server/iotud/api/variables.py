@@ -3,10 +3,7 @@ from datetime import datetime
 from flask import Blueprint, jsonify,  request
 from iotud.tools import fetch_all, fetch_one, update, insert, get_auth_props, either_response, delete
 from iotud.api.devices import check_device_ownership
-from string import ascii_lowercase
-import random
 from oslash import Right, Left
-from toolz import accumulate, assoc, reduce
 
 
 bp = Blueprint('variables', __name__, url_prefix="/users")
@@ -32,7 +29,7 @@ def delete_variable():
 
 
 @bp.route('/get_variables', methods=['POST'])
-def get_devices():
+def get_variables():
     data = get_auth_props(['id_device'],
                           request.get_json(),
                           request.headers.get('Authorization'))
