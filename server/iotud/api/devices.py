@@ -25,8 +25,8 @@ def delete_device():
     data = get_auth_props(['id_device'],
                           request.get_json(),
                           request.headers.get('Authorization'))
-    addedDevice = data.bind(check_ownership).bind(delete_device_db)
-    return either_response(addedDevice, 'Dispositivo eliminado con exito.')
+    deletedDevice = data.bind(check_device_ownership).bind(delete_device_db)
+    return either_response(deletedDevice, 'Dispositivo eliminado con exito.')
 
 
 @bp.route('/update_device', methods=['POST'])
@@ -34,7 +34,7 @@ def update_device():
     data = get_auth_props(['id_device', 'name', 'description'],
                           request.get_json(),
                           request.headers.get('Authorization'))
-    updatedDevice = data.bind(check_ownership).bind(update_device_db)
+    updatedDevice = data.bind(check_device_ownership).bind(update_device_db)
     return either_response(updatedDevice, 'Dispositivo actualizado con exito.')
 
 
@@ -47,7 +47,7 @@ def get_devices():
     return either_response(devices)
 
 
-def check_ownership(data: dict):
+def check_device_ownership(data: dict):
     query = "SELECT * FROM devices WHERE id_device = %s AND id_user = %s"
     vals = (data["data"]["id_device"], data["user"]["id_user"])
     device = fetch_one(query, vals)
