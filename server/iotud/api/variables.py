@@ -33,7 +33,18 @@ def get_variables():
     data = get_auth_props(['id_device'],
                           request.get_json(),
                           request.headers.get('Authorization'))
-    variables = data.bind(check_device_ownership).bind(get_variables_db)
+    variables = data.bind(check_device_ownership).bind(
+        get_variables_db).map(lambda x: {"variables": x})
+    return either_response(variables)
+
+
+@bp.route('/get_variable_types', methods=['POST'])
+def get_variable_types():
+    data = get_auth_props([],
+                          request.get_json(),
+                          request.headers.get('Authorization'))
+    variables = data.bind(get_variable_types_db).map(
+        lambda x: {"variable_types": x})
     return either_response(variables)
 
 
@@ -64,3 +75,10 @@ def get_variables_db(data: dict):
     vals = (data["data"]["id_device"],)
     variables = fetch_all(query, vals)
     return variables
+
+
+def get_variable_types_db(data: dict):
+    query = "SELECT * FROM variable_types"
+    vals = ()
+    variable_types = fetch_all(query, vals)
+    return variable_types

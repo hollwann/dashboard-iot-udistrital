@@ -1,10 +1,11 @@
 import functools
 from flask import Blueprint, jsonify,  request
-from iotud.tools import fetch_one, update, insert, get_props, either_response
+from iotud.tools import fetch_one, update, insert, get_props, either_response, get_auth_props
 from string import ascii_lowercase
 import random
 from oslash import Right, Left
 from toolz import accumulate, assoc, reduce
+from hashlib import md5
 
 bp = Blueprint('users', __name__, url_prefix="/users")
 
@@ -24,12 +25,25 @@ def login():
     return either_response(token_generated, 'Login exitoso')
 
 
+@bp.route('/get_user', methods=['POST'])
+def get_user():
+    data = get_auth_props([],
+                          request.get_json(),
+                          request.headers.get('Authorization'))
+    user = data.map(lambda x: {"user": x['user']})
+    return either_response(user)
+
+
+def hash_password(pwd):
+    return md5(pwd.encode()).hexdigest()
+
+
 def add_user_db(user: dict):
     query = "INSERT INTO users(name, email, password, id_rol) \
             VALUES (%s, %s, %s, %s)"
     vals = (user['name'],
             user['email'],
-            user['password'],
+            hash_password(user['password']),
             1)
     return insert(query, vals)
 
@@ -49,7 +63,7 @@ def append_user(data: dict):
 
 
 def check_password(data):
-    if data['user']['password'] == data['body']['password']:
+    if data['user']['password'] == hash_password(data['body']['password']):
         return Right(data["user"])
     return Left('UD004')
 

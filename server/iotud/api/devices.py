@@ -38,12 +38,22 @@ def update_device():
     return either_response(updatedDevice, 'Dispositivo actualizado con exito.')
 
 
-@bp.route('/get_devices', methods=['GET'])
+@bp.route('/get_devices', methods=['POST'])
 def get_devices():
     data = get_auth_props([],
                           request.get_json(),
                           request.headers.get('Authorization'))
-    devices = data.bind(get_devices_db)
+    devices = data.bind(get_devices_db).map(lambda x: {"devices": x})
+    return either_response(devices)
+
+
+@bp.route('/get_device', methods=['POST'])
+def get_device():
+    data = get_auth_props(['id_device'],
+                          request.get_json(),
+                          request.headers.get('Authorization'))
+    devices = data.bind(check_device_ownership).bind(
+        get_device_db).map(lambda x: {"device": x})
     return either_response(devices)
 
 
@@ -52,6 +62,13 @@ def check_device_ownership(data: dict):
     vals = (data["data"]["id_device"], data["user"]["id_user"])
     device = fetch_one(query, vals)
     return device.bind(lambda device: Left('UD006') if device is None else Right(data))
+
+
+def get_device_db(data: dict):
+    query = "SELECT * FROM devices WHERE id_user = %s AND id_device = %s"
+    vals = (data["user"]["id_user"], data["data"]["id_device"])
+    device = fetch_one(query, vals)
+    return device
 
 
 def get_devices_db(data: dict):
@@ -66,7 +83,7 @@ def add_device_db(data: dict):
              api_key_read, api_key_write, timestamp, id_user)\
             VALUES (%s, %s, %s, %s, %s, %s, %s)"
     vals = (data["data"]["name"], data["data"]["description"], 0,
-            gen_apikey(),gen_apikey(), datetime.now(), data["user"]["id_user"])
+            gen_apikey(), gen_apikey(), datetime.now(), data["user"]["id_user"])
     return insert(query, vals)
 
 

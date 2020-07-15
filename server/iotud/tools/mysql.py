@@ -11,7 +11,36 @@ def get_cnx():
     return cnx, cursor
 
 
-def query_wrapper(query: str, vals: tuple, f):
+def insert(query: str, vals: tuple):
+    return _query_wrapper(query, vals, _commit)
+
+
+def fetch_one(query: str, vals: tuple):
+    def fetch_one_function(cnx, cursor):
+        return cursor.fetchone()
+    return _query_wrapper(query, vals, fetch_one_function)
+
+
+def fetch_all(query: str, vals: tuple):
+    def fetch_all_function(cnx, cursor):
+        return cursor.fetchall()
+    return _query_wrapper(query, vals, fetch_all_function)
+
+
+def update(query: str, vals: tuple):
+    return _query_wrapper(query, vals, _commit)
+
+
+def delete(query: str, vals: tuple):
+    return _query_wrapper(query, vals, _commit)
+
+
+def _commit(cnx, cursor):
+    cnx.commit()
+    return {"id": cursor.lastrowid}
+
+
+def _query_wrapper(query: str, vals: tuple, f):
     try:
         cnx, cursor = get_cnx()
         cursor.execute(query, vals)
@@ -21,36 +50,3 @@ def query_wrapper(query: str, vals: tuple, f):
     except Exception as e:
         print(str(e))
         return Left('UD005')
-
-
-def insert(query: str, vals: tuple):
-    def insert_function(cnx, cursor):
-        cnx.commit()
-        return cursor.lastrowid
-    return query_wrapper(query, vals, insert_function)
-
-
-def fetch_one(query: str, vals: tuple):
-    def fetch_one_function(cnx, cursor):
-        return cursor.fetchone()
-    return query_wrapper(query, vals, fetch_one_function)
-
-
-def fetch_all(query: str, vals: tuple):
-    def fetch_all_function(cnx, cursor):
-        return cursor.fetchall()
-    return query_wrapper(query, vals, fetch_all_function)
-
-
-def update(query: str, vals: tuple):
-    def update_function(cnx, cursor):
-        cnx.commit()
-        return cursor.lastrowid
-    return query_wrapper(query, vals, update_function)
-
-
-def delete(query: str, vals: tuple):
-    def delete_function(cnx, cursor):
-        cnx.commit()
-        return cursor.lastrowid
-    return query_wrapper(query, vals, delete_function)
