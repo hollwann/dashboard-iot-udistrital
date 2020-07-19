@@ -8,7 +8,7 @@ from .mysql import fetch_one
 def get_props(props: list, data: dict):
     if not data and len(props) > 0:
         return Left('UD001')
-    keys_exist = all(map(lambda x: x in data, props))
+    keys_exist = all(map(lambda x: x in data and data[x] != '', props))
     if keys_exist:
         return Right(reduce(lambda x, y: assoc(x, y, data[y]), props, {}))
     return Left('UD001')

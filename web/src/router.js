@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import store from './store'
 
 Vue.use(Router)
 
@@ -18,7 +19,10 @@ const routes = [
   {
     path: '/dashboard',
     name: 'dashboard',
-    component: lazyLoad('Dashboard')
+    component: lazyLoad('Dashboard'),
+    meta: {
+      authRequired: true
+    }
   },
   {
     path: '/sign-up',
@@ -28,29 +32,62 @@ const routes = [
   {
     path: '/devices',
     name: 'devices',
-    component: lazyLoad('Devices')
+    component: lazyLoad('Devices'),
+    meta: {
+      authRequired: true
+    }
   },
   {
-    path: '/device',
+    path: '/device/:id',
     name: 'device',
-    component: lazyLoad('Device')
+    component: lazyLoad('Device'),
+    props: true,
+    meta: {
+      authRequired: true
+    }
   },
   {
     path: '/variable-data',
     name: 'variable-data',
-    component: lazyLoad('VariableData')
+    component: lazyLoad('VariableData'),
+    meta: {
+      authRequired: true
+    }
   },
   {
     path: '/profile',
     name: 'profile',
-    component: lazyLoad('Profile')
+    component: lazyLoad('Profile'),
+    meta: {
+      authRequired: true
+    }
   },
   {
     path: '/help',
     name: 'help',
-    component: lazyLoad('Help')
+    component: lazyLoad('Help'),
+    meta: {
+      authRequired: true
+    }
+  },
+  {
+    path: '*',
+    redirect: '/dashboard'
   }
 ]
-export default new Router({
+
+const router = new Router({
   routes
 })
+
+router.beforeEach((to, from, next) => {
+  const authRequired = to.meta.authRequired || false
+  const user = store.state.user
+
+  if (authRequired && user) next()
+  else if (authRequired && !user) next({ name: 'login' })
+  else if (!authRequired && user) next({ name: 'dashboard' })
+  else next()
+})
+
+export default router

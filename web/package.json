@@ -16,6 +16,9 @@
     "cordova-serve-ios": "cross-env CORDOVA_PLATFORM=ios vue-cli-service cordova-serve-ios"
   },
   "dependencies": {
+    "@dicebear/avatars": "^4.2.1",
+    "@dicebear/avatars-identicon-sprites": "^4.2.1",
+    "axios": "^0.19.2",
     "chart.js": "^2.9.3",
     "core-js": "^2.6.5",
     "vue": "^2.6.10",

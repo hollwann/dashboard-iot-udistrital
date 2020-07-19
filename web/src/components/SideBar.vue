@@ -1,17 +1,12 @@
 <template>
-  <v-navigation-drawer
-    app
-    mini-variant
-    expand-on-hover
-    v-if="!invalidRoutes.includes($route.name)"
-  >
+  <v-navigation-drawer app v-if="user" v-model="showSideBar">
     <v-list-item two-line class="px-1">
       <v-list-item-avatar>
-        <img :src="require('@/assets/profile.jpeg')" />
+        <v-img v-html="getImage(user.email)"></v-img>
       </v-list-item-avatar>
 
       <v-list-item-content>
-        <v-list-item-title>Victor Angulo</v-list-item-title>
+        <v-list-item-title>{{ user.name }}</v-list-item-title>
       </v-list-item-content>
     </v-list-item>
 
@@ -37,7 +32,7 @@
     </v-list>
     <template v-slot:append>
       <div class="pa-2">
-        <v-btn width="100%" color="secondary" :to="{ name: 'login' }"
+        <v-btn width="100%" color="secondary" @click="logout"
           >Cerrar sesión</v-btn
         >
       </div>
@@ -46,7 +41,17 @@
 </template>
 
 <script>
+import { mapActions, mapState } from 'vuex'
+import Avatars from '@dicebear/avatars'
+import sprites from '@dicebear/avatars-identicon-sprites'
+
 export default {
+  props: {
+    value: {
+      type: Boolean,
+      required: true
+    }
+  },
   data() {
     return {
       items: [
@@ -70,9 +75,30 @@ export default {
           icon: 'fa-question-circle',
           route: 'help'
         }
-      ],
-      invalidRoutes: ['login', 'sign-up']
+      ]
     }
+  },
+  computed: {
+    showSideBar: {
+      get() {
+        return this.value
+      },
+      set(v) {
+        this.$emit('input', v)
+      }
+    },
+    ...mapState(['user'])
+  },
+  methods: {
+    getImage(email) {
+      let options = {}
+      let avatars = new Avatars(sprites, options)
+      return avatars.create(email)
+    },
+    logout() {
+      this.userLogout()
+    },
+    ...mapActions(['userLogout'])
   }
 }
 </script>
