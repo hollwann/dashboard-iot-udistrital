@@ -20,8 +20,8 @@
               <b>Fecha de creación:</b>
               {{ new Date(device.timestamp).toLocaleString() }}
             </p>
-            <p><b>APIKEY Escritura:</b> {{ device.api_key_read }}</p>
-            <p><b>APIKEY Lectura:</b> {{ device.api_key_write }}</p>
+            <p><b>APIKEY Escritura:</b> {{ device.api_key_write }}</p>
+            <p><b>APIKEY Lectura:</b> {{ device.api_key_read }}</p>
           </v-card-text>
         </v-card>
       </v-col>
@@ -44,7 +44,10 @@
           :loading="loading"
         >
           <template v-slot:item.data="{ item }">
-            <v-btn color="secondary" :to="{ name: 'variable-data' }">
+            <v-btn
+              color="secondary"
+              :to="{ name: 'variable-data', params: { id: item.id_variable } }"
+            >
               Datos
             </v-btn>
           </template>
@@ -60,6 +63,21 @@
           </template>
         </v-data-table>
       </v-col>
+      <v-col cols="12" sm="8" offset-sm="2">
+        <v-card>
+          <v-card-title class="justify-center ">
+            Enlace de bajada (downlink)</v-card-title
+          >
+          <v-card-text>
+            <v-textarea outlined label="Payload"></v-textarea>
+          </v-card-text>
+          <v-card-actions class="justify-center">
+            <v-btn color="primary" width="50%" @click="sendDownlink"
+              >Enviar</v-btn
+            >
+          </v-card-actions>
+        </v-card>
+      </v-col>
     </v-row>
     <DialogVariable
       :id_device="id"
@@ -72,6 +90,8 @@
 
 <script>
 import DialogVariable from '@/components/DialogVariable.vue'
+import { postDownlink } from '../plugins/ApiConn'
+import { mapActions } from 'vuex'
 export default {
   components: {
     DialogVariable
@@ -126,10 +146,17 @@ export default {
       },
       loading: true,
       showDialog: false,
-      variableTypes: []
+      variableTypes: [],
+      payload: ''
     }
   },
   methods: {
+    sendDownlink() {
+      postDownlink(btoa(this.payload)).then(() => {
+        this.showDialog('Downlink enviado con exito')
+        this.payload = ''
+      })
+    },
     updateVariables() {
       return this.$post('get_variables', { id_device: this.id }).then(
         response => {
@@ -144,7 +171,8 @@ export default {
           value: variable.id_variable_type
         }))
       })
-    }
+    },
+    ...mapActions(['showDialog'])
   }
 }
 </script>

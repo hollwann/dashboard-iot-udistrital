@@ -79,10 +79,10 @@ def get_devices_db(data: dict):
 
 
 def add_device_db(data: dict):
-    query = "INSERT INTO devices(name, description, variables_number,\
+    query = "INSERT INTO devices(name, description,\
              api_key_read, api_key_write, timestamp, id_user)\
-            VALUES (%s, %s, %s, %s, %s, %s, %s)"
-    vals = (data["data"]["name"], data["data"]["description"], 0,
+            VALUES (%s, %s, %s, %s, %s, %s)"
+    vals = (data["data"]["name"], data["data"]["description"], 
             gen_apikey(), gen_apikey(), datetime.now(), data["user"]["id_user"])
     return insert(query, vals)
 

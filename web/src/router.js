@@ -47,9 +47,10 @@ const routes = [
     }
   },
   {
-    path: '/variable-data',
+    path: '/variable-data/:id',
     name: 'variable-data',
     component: lazyLoad('VariableData'),
+    props: true,
     meta: {
       authRequired: true
     }

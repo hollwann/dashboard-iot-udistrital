@@ -48,13 +48,23 @@ def get_variable_types():
     return either_response(variables)
 
 
+@bp.route('/get_variable', methods=['POST'])
+def get_variable():
+    data = get_auth_props(['id_variable'],
+                          request.get_json(),
+                          request.headers.get('Authorization'))
+    variable = data.bind(check_ownership_variable).bind(
+        get_variable_db)
+    return either_response(variable)
+
+
 def check_ownership_variable(data: dict):
     query = "SELECT * FROM variables \
             INNER JOIN devices ON devices.id_device = variables.id_device \
             WHERE devices.id_user = %s AND variables.id_variable = %s"
     vals = (data["user"]["id_user"], data["data"]["id_variable"], )
-    device = fetch_one(query, vals)
-    return device.bind(lambda device: Left('UD006') if device is None else Right(data))
+    variable = fetch_one(query, vals)
+    return variable.bind(lambda variable: Left('UD006') if variable is None else Right(data))
 
 
 def delete_variable_db(data: dict):
@@ -68,6 +78,13 @@ def add_variable_db(data: dict):
     vals = (data["data"]["name"], data["data"]
             ["id_device"], data["data"]["id_variable_type"])
     return insert(query, vals)
+
+
+def get_variable_db(data: dict):
+    query = "SELECT * FROM variables WHERE id_variable = %s"
+    vals = (data["data"]["id_variable"],)
+    variables = fetch_one(query, vals)
+    return variables
 
 
 def get_variables_db(data: dict):

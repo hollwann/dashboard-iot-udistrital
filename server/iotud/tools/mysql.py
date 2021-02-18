@@ -3,7 +3,7 @@ from oslash import Right, Left
 
 
 def get_cnx():
-    cnx = mysql.connector.connect(user='root', password='UsaCnsc-2019',
+    cnx = mysql.connector.connect(user='root', password='Thegitud2020',
                                   host='localhost', database='dashboard_ud',
                                   auth_plugin='mysql_native_password',
                                   use_pure=True)

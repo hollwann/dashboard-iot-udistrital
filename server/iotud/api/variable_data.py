@@ -21,14 +21,14 @@ def get_variable_data():
 def get_variable_data_db(data: dict):
     if data['data']['type'] == 'date':
         query = "SELECT * FROM variable_data \
-                WHERE id_variable = %s AND timestamp >= %s and TIMESTAMP <= %s\
-                ORDER BY timestamp DESC"
+                WHERE id_variable = %s AND timestamp_data >= %s and timestamp_data <= %s\
+                ORDER BY timestamp_data ASC"
         vals = (data["data"]["id_variable"], data['data']
                 ['start'], data['data']['end'])
-    else:
+    else: #limit
         query = "SELECT * FROM variable_data \
                 WHERE id_variable = %s \
-                ORDER BY timestamp DESC \
+                ORDER BY timestamp_data ASC \
                 LIMIT %s"
         vals = (data["data"]["id_variable"], data["data"]["results"])
     variables = fetch_all(query, vals)

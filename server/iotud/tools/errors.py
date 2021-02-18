@@ -12,4 +12,6 @@ def get_error_msg(code: str):
         return 'Error interno de base de datos.'
     elif code == 'UD006':
         return 'Permiso denegado.'
+    elif code == 'UD007':
+        return 'Dato en la variable erroneos.'
     return 'Codigo de error no definido'
